@@ -1,163 +1,137 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const addRecipeForm = document.getElementById("addRecipeForm");
-    const recipeList = document.getElementById("recipeList");
-    let recipeCards = []; // Array to hold recipe card elements
+const apiKey = '8050708f94b040688534233dca3f83e6';
 
-    // Sample data for initial recipes
-    const initialRecipes = [
-        { name: "Chocolate Chip Cookies", ingredients: "Flour, sugar, chocolate chips, butter, eggs", instructions: "1. Preheat oven...", ratings: [4, 5, 3] },
-        { name: "Pasta Carbonara", ingredients: "Pasta, eggs, bacon, Parmesan cheese, black pepper", instructions: "1. Cook pasta...", ratings: [5, 4, 5, 3] },
-        { name: "Chicken Stir-Fry", ingredients: "Chicken breast, vegetables, soy sauce, garlic, ginger", instructions: "1. Heat oil in a pan...", ratings: [3, 4, 2, 4, 5] }
-    ];
+// Call fetchRecipes when the search form is submitted
+document.getElementById('searchForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const searchInput = document.getElementById('searchInput').value;
+    fetchRecipes(searchInput);
+});
 
-    // Function to calculate average rating
-    function calculateAverageRating(ratings) {
-        if (ratings.length === 0) return 0;
-        const sum = ratings.reduce((total, rating) => total + rating, 0);
-        return sum / ratings.length;
-    }
 
-    // Function to generate star icons HTML based on the average rating
-    function generateStarsHTML(averageRating) {
-        const roundedRating = Math.round(averageRating * 2) / 2; // Round to nearest 0.5
-        const starCount = Math.floor(roundedRating);
-        const hasHalfStar = roundedRating % 1 !== 0;
+function fetchRecipes(query) {
+    const url = `https://api.spoonacular.com/recipes/complexSearch?query=${query}&apiKey=${apiKey}&number=10`;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => displayRecipes(data.results))
+        .catch(error => console.log('Error fetching recipes:', error));
+}
 
-        let starsHTML = '';
-        for (let i = 0; i < starCount; i++) {
-            starsHTML += '<i class="fas fa-star"></i>';
-        }
-        if (hasHalfStar) {
-            starsHTML += '<i class="fas fa-star-half-alt"></i>';
-        }
-        const remainingStars = 5 - starCount - (hasHalfStar ? 1 : 0);
-        for (let i = 0; i < remainingStars; i++) {
-            starsHTML += '<i class="far fa-star"></i>';
-        }
+function displayRecipes(recipes) {
+    const recipesContainer = document.getElementById('recipes');
+    recipesContainer.innerHTML = '';
 
-        return starsHTML;
-    }
+    for (let i = 0; i < recipes.length; i += 4) {
+        const row = document.createElement('div');
+        row.classList.add('row', 'mb-4');
 
-    // Function to create recipe card
-    function createRecipeCard(recipe) {
-        const averageRating = calculateAverageRating(recipe.ratings);
-        const starsHTML = generateStarsHTML(averageRating);
-
-        const recipeCard = document.createElement("div");
-        recipeCard.className = "col-md-4 recipe-card";
-        recipeCard.innerHTML = `
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">${recipe.name}</h5>
-                    <p class="card-text">Ingredients: ${recipe.ingredients}</p>
-                    <p class="card-text">Instructions: ${recipe.instructions}</p>
-                    <div class="rating">
-                        ${starsHTML}
-                        <span class="average-rating">${averageRating.toFixed(1)}</span>
+        for (let j = i; j < Math.min(i + 4, recipes.length); j++) {
+            const recipe = recipes[j];
+            const card = `
+                <div class="col-md-3">
+                    <div class="card">
+                        <img src="${recipe.image}" class="card-img-top" alt="${recipe.title}">
+                        <div class="card-body">
+                            <h5 class="card-title">${recipe.title}</h5>
+                            <a href="#" class="btn btn-primary view-recipe-btn" data-recipe-id="${recipe.id}">View Recipe</a>
+                            <button class="btn btn-info rate-recipe-btn" data-recipe-id="${recipe.id}">Rate</button>
+                            <input class="ratingInput" type="number" min="1" max="5" placeholder="Enter your rating (1-5)">
+                            <p class="card-text">Rating: <span id="rating-${recipe.id}" class="rating-${recipe.id}" data-total="0">0</span> (Average: <span id="average-rating-${recipe.id}" class="average-rating-${recipe.id}">0</span>)</p>
+                        </div>
                     </div>
-                    <button class="btn btn-primary rate-btn">Rate Recipe</button>
                 </div>
-            </div>
-        `;
-        return recipeCard;
-    }
-
-    // Function to render recipe cards
-    function renderRecipeCards() {
-        recipeList.innerHTML = ""; // Clear previous cards
-        recipeCards.forEach(card => {
-            recipeList.appendChild(card);
-        });
-    }
-
-    // Populate initial recipes and recipe cards
-    initialRecipes.forEach(recipe => {
-        const recipeCard = createRecipeCard(recipe);
-        recipeCards.push(recipeCard);
-    });
-
-    // Render initial recipe cards
-    renderRecipeCards();
-
-    // Event listener for form submission
-    addRecipeForm.addEventListener("submit", function (event) {
-        event.preventDefault(); // Prevent default form submission
-
-        // Get values from the form inputs
-        const recipeName = document.getElementById("recipeName").value.trim();
-        const recipeIngredients = document.getElementById("recipeIngredients").value.trim();
-        const recipeInstructions = document.getElementById("recipeInstructions").value.trim();
-
-        if (recipeName !== "" && recipeIngredients !== "" && recipeInstructions !== "") {
-            // Create a new recipe object
-            const newRecipe = {
-                name: recipeName,
-                ingredients: recipeIngredients,
-                instructions: recipeInstructions,
-                ratings: [] // Initialize ratings array for new recipe
-            };
-
-            // Create recipe card for the new recipe
-            const newRecipeCard = createRecipeCard(newRecipe);
-            recipeCards.push(newRecipeCard);
-
-            // Sort recipe cards based on average rating (highest to lowest)
-            recipeCards.sort((a, b) => {
-                const ratingA = parseFloat(a.querySelector(".average-rating").textContent);
-                const ratingB = parseFloat(b.querySelector(".average-rating").textContent);
-                return ratingB - ratingA;
-            });
-
-            // Render recipe cards
-            renderRecipeCards();
-
-            // Clear the form inputs
-            addRecipeForm.reset();
-        } else {
-            alert("Please fill in all fields");
+            `;
+            row.innerHTML += card;
         }
-    });
 
-    // Event listener for "Rate Recipe" buttons
-    recipeList.addEventListener("click", function (event) {
-        if (event.target.classList.contains("rate-btn")) {
-            const recipeName = event.target.closest(".card-body").querySelector(".card-title").textContent;
-            const rating = prompt(`Rate "${recipeName}" (1-5):`);
-            if (rating && !isNaN(rating) && rating >= 1 && rating <= 5) {
-                const recipeCard = event.target.closest(".recipe-card");
-                const ratingsContainer = recipeCard.querySelector(".rating");
-                const averageRatingElement = recipeCard.querySelector(".average-rating");
-                const currentRatings = JSON.parse(recipeCard.getAttribute("data-ratings")) || [];
-                const newRatings = [...currentRatings, parseInt(rating)];
-                const newAverageRating = calculateAverageRating(newRatings);
-                const starsHTML = generateStarsHTML(newAverageRating);
-                ratingsContainer.innerHTML = starsHTML + `<span class="average-rating">${newAverageRating.toFixed(1)}</span>`;
-                recipeCard.setAttribute("data-ratings", JSON.stringify(newRatings));
+        recipesContainer.appendChild(row);
+    }
+    
+    document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('rate-recipe-btn')) {
+            event.stopPropagation(); // Prevent modal from showing when rating button is clicked
+            const recipeId = event.target.getAttribute('data-recipe-id');
+            const ratingInput = event.target.parentElement.querySelector('.ratingInput');
+            const rating = parseFloat(ratingInput.value);
+            if (!isNaN(rating) && rating >= 1 && rating <= 5) {
+                // Update the displayed rating
+                const currentRatingSpan = document.getElementById(`rating-${recipeId}`);
+                const currentRating = parseFloat(currentRatingSpan.textContent);
+                const totalRatings = parseFloat(currentRatingSpan.dataset.total) || 0;
+                const newTotalRatings = totalRatings + 1;
+                const newRating = (currentRating * totalRatings + rating) / newTotalRatings;
+                currentRatingSpan.textContent = newRating.toFixed(1);
+                currentRatingSpan.dataset.total = newTotalRatings;
 
-                // Update the recipe card in the array
-                recipeCards.forEach(card => {
-                    if (card === recipeCard) {
-                        card = createRecipeCard({
-                            name: recipeCard.querySelector(".card-title").textContent,
-                            ingredients: recipeCard.querySelector(".card-text:nth-child(2)").textContent.slice(12),
-                            instructions: recipeCard.querySelector(".card-text:nth-child(3)").textContent.slice(14),
-                            ratings: newRatings
-                        });
-                    }
-                });
-
-                // Sort recipe cards based on average rating (highest to lowest)
-                recipeCards.sort((a, b) => {
-                    const ratingA = parseFloat(a.querySelector(".average-rating").textContent);
-                    const ratingB = parseFloat(b.querySelector(".average-rating").textContent);
-                    return ratingB - ratingA;
-                });
-
-                // Render recipe cards
-                renderRecipeCards();
+                // Calculate and display average rating
+                const averageRatingSpan = document.getElementById(`average-rating-${recipeId}`);
+                const averageRating = parseFloat(averageRatingSpan.textContent);
+                const newAverageRating = (averageRating * (newTotalRatings - 1) + rating) / newTotalRatings;
+                averageRatingSpan.textContent = newAverageRating.toFixed(1);
             } else {
-                alert("Invalid rating. Please enter a number between 1 and 5.");
+                alert('Please enter a valid rating (1-5)!');
             }
         }
     });
+
+
+
+    // Add event listener to each "View Recipe" button
+    const viewRecipeButtons = document.querySelectorAll('.view-recipe-btn');
+    viewRecipeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const recipeId = button.getAttribute('data-recipe-id');
+            showRecipeDetails(recipeId);
+        });
+    });
+}
+
+function showRecipeDetails(recipeId) {
+    // Remove existing modal
+    $('#recipeModal').remove();
+
+    const url = `https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=${apiKey}`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            // Display recipe details dynamically on the webpage
+            const recipeDetails = `
+                <div class="modal fade" id="recipeModal-${recipeId}" tabindex="-1" role="dialog" aria-labelledby="recipeModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="recipeModalLabel">${data.title}</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <img src="${data.image}" class="img-fluid mb-3" alt="${data.title}">
+                                <p>${data.summary}</p>
+                                <p>Preparation Time: ${data.readyInMinutes} minutes</p>
+                                <p>Rating: ${data.spoonacularScore}</p>
+                                <h6>Ingredients:</h6>
+                                <ul>
+                                    ${data.extendedIngredients.map(ingredient => `<li>${ingredient.original}</li>`).join('')}
+                                </ul>
+                                <h6>Instructions:</h6>
+                                <p>${data.instructions}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', recipeDetails);
+            $(`#recipeModal-${recipeId}`).modal('show');
+        })
+        .catch(error => console.log('Error fetching recipe details:', error));
+}
+
+document.getElementById('searchForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const searchInput = document.getElementById('searchInput').value;
+    fetchRecipes(searchInput);
+
+    const rateRecipeButtons = document.querySelectorAll('.rate-recipe-btn');
 });

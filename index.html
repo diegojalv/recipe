@@ -3,45 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recipe Sharing Platform</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="styles.css" rel="stylesheet">
+    <title>Recipe Finder</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Navbar with Login/Register buttons -->
-   
-
-   
-    <div class="container mt-5">
-        <h2>Discover Recipes</h2>
-        <div id="recipeList" class="row">
-            <!-- Recipe cards will be dynamically added here -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Recipe Finder</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <form id="searchForm" class="form-inline my-2 my-lg-0">
+                <input id="searchInput" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                
+            </form>
         </div>
+    </nav>
+    <div id="recipes" class="container"></div>
 
-        <hr>
-
-        <h2>Share Your Recipe</h2>
-        <form id="addRecipeForm">
-            <div class="form-group">
-                <label for="recipeName">Recipe Name</label>
-                <input type="text" class="form-control" id="recipeName" placeholder="Enter recipe name">
-            </div>
-            <div class="form-group">
-                <label for="recipeIngredients">Ingredients</label>
-                <textarea class="form-control" id="recipeIngredients" rows="3" placeholder="Enter ingredients"></textarea>
-            </div>
-            <div class="form-group">
-                <label for="recipeInstructions">Instructions</label>
-                <textarea class="form-control" id="recipeInstructions" rows="5" placeholder="Enter instructions"></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Share Recipe</button>
-        </form>
-    </div>
-
-    
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="scripts.js"></script>
 </body>
 </html>

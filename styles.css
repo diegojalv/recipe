@@ -1,53 +1,32 @@
-/* Custom styles for the Recipe Sharing Platform */
+body {
+  padding-top:0 ;
+}
 
-/* Recipe cards */
-.recipe-card {
+.card {
   margin-bottom: 20px;
 }
 
-.recipe-card .card {
-  transition: transform 0.3s;
+.card-img-top {
+  height: 200px;
+  object-fit: cover;
 }
 
-.recipe-card .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.recipe-card .card-title {
+.card-title {
   font-size: 1.25rem;
-  font-weight: bold;
+  margin-bottom: 0.5rem;
 }
 
-.recipe-card .card-text {
-  font-size: 0.875rem;
-  margin-bottom: 10px;
+.card-text {
+  font-size: 0.9rem;
+  color: #6c757d;
 }
 
-/* Recipe form */
-#addRecipeForm {
-  max-width: 500px;
-  margin-top: 30px;
-}
-
-/* Recipe form input fields */
-#addRecipeForm .form-control {
-  margin-bottom: 15px;
-}
-
-/* Recipe form submit button */
-#addRecipeForm button[type="submit"] {
-  width: 100%;
-}
-
-/* Rate recipe button */
-.recipe-card .btn-primary {
-  width: 100%;
+.btn-primary {
   background-color: #007bff;
   border-color: #007bff;
-  transition: background-color 0.3s;
 }
 
-.recipe-card .btn-primary:hover {
+.btn-primary:hover {
   background-color: #0056b3;
+  border-color: #0056b3;
 }
